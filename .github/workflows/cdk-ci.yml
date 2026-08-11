@@ -16,8 +16,10 @@ env:
   DEPLOY_ENV: staging
 
 jobs:
-  build:
+  build-staging:
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: staging
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,16 +38,12 @@ jobs:
       - name: Synthesize CDK
         run: npx cdk synth
 
-  plan:
-    needs: build
+  plan-staging:
+    needs: build-staging
     runs-on: ubuntu-latest
-    environment: ${{ matrix.deploy_env }}
-    strategy:
-      matrix:
-        deploy_env: [staging, prod]
-    if: ${{ matrix.deploy_env == 'staging' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+    environment: staging
     env:
-      DEPLOY_ENV: ${{ matrix.deploy_env }}
+      DEPLOY_ENV: staging
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,16 +51,63 @@ jobs:
       - name: Placeholder plan step
         run: echo "Plan stage placeholder for $DEPLOY_ENV"
 
-  deploy:
-    needs: plan
+  deploy-staging:
+    needs: plan-staging
     runs-on: ubuntu-latest
-    environment: ${{ matrix.deploy_env }}
-    strategy:
-      matrix:
-        deploy_env: [staging, prod]
-    if: ${{ matrix.deploy_env == 'staging' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+    environment: staging
     env:
-      DEPLOY_ENV: ${{ matrix.deploy_env }}
+      DEPLOY_ENV: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Placeholder deploy step
+        run: echo "Deploy stage placeholder for $DEPLOY_ENV"
+
+  build-prod:
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: prod
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Synthesize CDK
+        run: npx cdk synth
+
+  plan-prod:
+    needs: build-prod
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      DEPLOY_ENV: prod
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Placeholder plan step
+        run: echo "Plan stage placeholder for $DEPLOY_ENV"
+
+  deploy-prod:
+    needs: plan-prod
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+    runs-on: ubuntu-latest
+    environment: prod
+    env:
+      DEPLOY_ENV: prod
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
