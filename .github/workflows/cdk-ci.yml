@@ -1,0 +1,167 @@
+name: CDK CI
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+env:
+  AWS_ACCOUNT: "310697203246"
+  AWS_REGION: us-east-1
+
+jobs:
+  build-staging:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Synthesize CDK
+        run: npx cdk synth
+
+  plan-staging:
+    needs: build-staging
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: staging
+    env:
+      DEPLOY_ENV: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/cicd_deploy
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 1200
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CDK diff
+        run: npx cdk diff
+
+  deploy-staging:
+    needs: plan-staging
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: staging
+    env:
+      DEPLOY_ENV: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/cicd_deploy
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 1200
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CDK deploy
+        run: npx cdk deploy --require-approval never
+
+  build-prod:
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_ENV: prod
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Synthesize CDK
+        run: npx cdk synth
+
+  plan-prod:
+    needs: build-prod
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: prod
+    env:
+      DEPLOY_ENV: prod
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/cicd_deploy
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 1200
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CDK diff
+        run: npx cdk diff
+
+  deploy-prod:
+    needs: plan-prod
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment: prod
+    env:
+      DEPLOY_ENV: prod
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/cicd_deploy
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 1200
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CDK deploy
+        run: npx cdk deploy --require-approval never
