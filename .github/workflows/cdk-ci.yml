@@ -41,6 +41,9 @@ jobs:
   plan-staging:
     needs: build-staging
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     environment: staging
     env:
       DEPLOY_ENV: staging
@@ -48,8 +51,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Placeholder plan step
-        run: echo "Plan stage placeholder for $DEPLOY_ENV"
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/cicd_deploy
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 1200
+
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
 
   deploy-staging:
     needs: plan-staging
@@ -91,6 +101,9 @@ jobs:
     needs: build-prod
     if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     environment: prod
     env:
       DEPLOY_ENV: prod
@@ -98,8 +111,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Placeholder plan step
-        run: echo "Plan stage placeholder for $DEPLOY_ENV"
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/cicd_deploy
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 1200
+
+
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
 
   deploy-prod:
     needs: plan-prod
