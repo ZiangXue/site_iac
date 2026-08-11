@@ -13,7 +13,6 @@ on:
 env:
   AWS_ACCOUNT: "310697203246"
   AWS_REGION: us-east-1
-  DEPLOY_ENV: staging
 
 jobs:
   build-staging:
@@ -30,7 +29,7 @@ jobs:
           node-version: '24'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build project
         run: npm run build
@@ -58,12 +57,18 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-duration-seconds: 1200
 
-      - name: Verify AWS identity
-        run: aws sts get-caller-identity
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CDK diff
+        run: npx cdk diff
 
   deploy-staging:
     needs: plan-staging
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     environment: staging
     env:
       DEPLOY_ENV: staging
@@ -71,8 +76,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Placeholder deploy step
-        run: echo "Deploy stage placeholder for $DEPLOY_ENV"
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/cicd_deploy
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 1200
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CDK deploy
+        run: npx cdk deploy --require-approval never
 
   build-prod:
     if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
@@ -89,7 +104,7 @@ jobs:
           node-version: '24'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build project
         run: npm run build
@@ -118,14 +133,19 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-duration-seconds: 1200
 
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Verify AWS identity
-        run: aws sts get-caller-identity
+      - name: Run CDK diff
+        run: npx cdk diff
 
   deploy-prod:
     needs: plan-prod
     if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/') || (github.event_name == 'pull_request' && github.base_ref == 'main') }}
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     environment: prod
     env:
       DEPLOY_ENV: prod
@@ -133,5 +153,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Placeholder deploy step
-        run: echo "Deploy stage placeholder for $DEPLOY_ENV"
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT }}:role/cicd_deploy
+          aws-region: ${{ env.AWS_REGION }}
+          role-duration-seconds: 1200
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run CDK deploy
+        run: npx cdk deploy --require-approval never
