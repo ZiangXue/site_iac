@@ -63,9 +63,6 @@ jobs:
       - name: Run CDK diff
         run: npx cdk diff
 
-      - name: Run CDK bootstrap
-        run: npx cdk bootstrap aws://310697203246/us-east-1
-
   deploy-staging:
     needs: plan-staging
     runs-on: ubuntu-latest

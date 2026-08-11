@@ -10,7 +10,6 @@ export class SiteIacStack extends cdk.Stack {
     // The code that defines your stack goes here
 
     new s3.Bucket(this, 'SampleBucket', {
-      bucketName: 'sample',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
