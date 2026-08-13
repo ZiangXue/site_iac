@@ -30,7 +30,14 @@ const awsEnv = {
 
 const envName = config?.env?.name ?? deployEnv;
 
-new SiteStack(app, `SiteIacStack-${envName}`, {
+const network = new NetworkStack(app, `NetworkStack-${envName}`, {
+  domain: 'ziangxue.com',
   env: awsEnv,
+});
+
+new SiteStack(app, `SiteIacStack-${envName}`, {
   envName: envName,
+  certificate: network.certificate,
+  siteDomain: `me.ziangxue.com`,
+  env: awsEnv,
 });
