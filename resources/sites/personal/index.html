@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text x='50%' y='50%' font-family='Helvetica,Arial,sans-serif' font-weight='bold' font-size='35' text-anchor='middle' dominant-baseline='middle' fill='%23000000'>z</text></svg>">
+
+
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ziangxue:site</title>
+
+  <style>
+    :root {
+      --bg: #181818;
+      --fg: #f7f7f5;
+      --hero-size: 100px;
+      --e-offset: 0px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    body {
+      overflow: hidden;
+      font-family: Helvetica, Arial, sans-serif;
+      font-weight: 700;
+    }
+
+    .page {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+
+    /*
+      Information remains in a separate lower area and does not overlap
+      the large typography.
+    */
+    .info {
+      position: absolute;
+      z-index: 5;
+      left: 61vw;
+      bottom: 3vh;
+      width: 40vw;
+
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 2vw;
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1.18;
+      letter-spacing: -0.025em;
+      color: var(--fg);
+    }
+
+    .info .title {
+      margin-bottom: 15px;
+    }
+
+    .info .title a {
+      color: inherit;
+    }
+
+    .logo {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100vw;
+      height: auto;
+      z-index: 6;
+    }
+
+    .info .gap {
+      height: 13px;
+    }
+
+    @media (orientation: portrait) {
+      .info {
+        left: 21vw;
+        bottom: 20vh;
+        width: 60vw;
+        font-size: 4vw;
+      }
+    }
+
+    /* On very wide screens, split the info panel into two columns */
+    @media (min-aspect-ratio: 144/100) {
+        .info {
+          left: 21vw;
+          width: 80vw;
+          bottom: 1vh;
+          display: grid;
+          grid-template-columns: min-content 1fr;
+          gap: 1vw 4vw;
+          align-items: start;
+        }
+
+        /* Keep title and gap in the left column */
+        .info .title {
+          grid-column: 1;
+          break-inside: avoid-column;
+          -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+         .info .gap {
+          grid-column: 1;
+          break-inside: avoid-column;
+          -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        .info .details {
+          grid-column: 2;
+          grid-row: 1;
+          /* column-count: 1; */
+        }
+
+        /* Prevent individual detail items from splitting */
+        .info .details > div {
+          /* break-inside: avoid-column; */
+          -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+        }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+
+    <img src="logo.svg" alt="logo" class="logo">
+
+    <section class="info">
+
+      <div class="title">
+        <a href="https://github.com/ZiangXue" target="_blank" rel="noopener noreferrer">github&#x2197;&#xFE0E;</a><br>
+        <a href="https://www.linkedin.com/in/ziangxue/" target="_blank" rel="noopener noreferrer">linkedin&#x2197;&#xFE0E;</a><br>
+      </div>
+
+      <div class="gap"></div>
+
+      <div class="details">
+        <div>pomona college '23, b.a.</div>
+        <div>computer science & mathematics</div>
+        <div>-</div>
+        <div>ex goldman sachs software engineer</div>
+        <div>-</div>
+        <div>ucla '28, m.s. computer science</div>
+      </div>
+    </section>
+
+  </main>
+
+
+</body>
+</html>
