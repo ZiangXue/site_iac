@@ -45,57 +45,6 @@
       background: var(--bg);
     }
 
-    /*
-      The word appears only once:
-        ZI
-        ANGXU
-        E
-
-      All three lines use exactly the same dynamically calculated
-      font-size. Letter spacing is fixed at -0.11em.
-    */
-    .hero {
-      position: absolute;
-      inset: 0;
-      margin: 0;
-
-      font-family: Helvetica, Arial, sans-serif;
-      font-weight: 700;
-      font-size: var(--hero-size);
-      line-height: 0.7;
-      letter-spacing: -0.11em;
-
-      color: var(--fg);
-      white-space: nowrap;
-      user-select: none;
-      transform: translateY(var(--e-offset));
-    }
-
-    .line {
-      display: block;
-      width: 100vw;
-      margin: 0;
-      padding: 0;
-      white-space: nowrap;
-    }
-
-    /* ZI — right edge of I reaches the viewport edge. */
-    .line-1 {
-      text-align: right;
-      transform: translateX(var(--e-offset));
-    }
-
-    /* ANGXU — its measured visual width is fitted to 100vw. */
-    .line-2 {
-      text-align: left;
-      transform: translateX(var(--e-offset));
-    }
-
-    /* E — its actual glyph edge is mathematically corrected to x=0. */
-    .line-3 {
-      text-align: left;
-      transform: translateX(var(--e-offset));
-    }
 
     /*
       Information remains in a separate lower area and does not overlap
@@ -125,58 +74,17 @@
       color: inherit;
     }
 
+    .logo {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100vw;
+      height: auto;
+      z-index: 6;
+    }
+
     .info .gap {
       height: 13px;
-    }
-
-    .block {
-      position: absolute;
-      z-index: 4;
-      left: 0;
-      bottom: 0;
-      width: 17.5vw;
-      height: 6.5vh;
-      background: var(--fg);
-    }
-
-    .block::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 100%;
-      width: 3vw;
-      height: 12vh;
-      background: var(--fg);
-    }
-
-    /*
-      Hidden measurement layer.
-      It uses the same typography as the visible hero.
-    */
-    #measure {
-      position: absolute;
-      left: -99999px;
-      top: 0;
-      visibility: hidden;
-      white-space: nowrap;
-
-      font-family: Helvetica, Arial, sans-serif;
-      font-weight: 700;
-      letter-spacing: -0.11em;
-      line-height: 0.76;
-    }
-
-    #measureE {
-      position: absolute;
-      left: -99999px;
-      top: 0;
-      visibility: hidden;
-      white-space: nowrap;
-
-      font-family: Helvetica, Arial, sans-serif;
-      font-weight: 700;
-      letter-spacing: -0.11em;
-      line-height: 0.76;
     }
 
     @media (orientation: portrait) {
@@ -186,14 +94,47 @@
         width: 60vw;
         font-size: 4vw;
       }
+    }
 
-      .block {
-        width: 25vw;
-      }
+    /* On very wide screens, split the info panel into two columns */
+    @media (min-aspect-ratio: 144/100) {
+        .info {
+          left: 21vw;
+          width: 80vw;
+          bottom: 1vh;
+          display: grid;
+          grid-template-columns: min-content 1fr;
+          gap: 1vw 4vw;
+          align-items: start;
+        }
 
-      .block::after {
-        width: 5vw;
-      }
+        /* Keep title and gap in the left column */
+        .info .title {
+          grid-column: 1;
+          break-inside: avoid-column;
+          -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+         .info .gap {
+          grid-column: 1;
+          break-inside: avoid-column;
+          -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        .info .details {
+          grid-column: 2;
+          grid-row: 1;
+          /* column-count: 1; */
+        }
+
+        /* Prevent individual detail items from splitting */
+        .info .details > div {
+          /* break-inside: avoid-column; */
+          -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+        }
     }
   </style>
 </head>
@@ -201,152 +142,29 @@
 <body>
   <main class="page">
 
-    <h1 class="hero" aria-label="ZIANGXUE">
-      <span class="line line-1">ZI</span>
-      <span class="line line-2">ANGXU</span>
-      <span class="line line-3">E</span>
-    </h1>
+    <img src="logo.svg" alt="logo" class="logo">
 
     <section class="info">
+
       <div class="title">
-        <a href="https://github.com/ZiangXue" target="_blank" rel="noopener noreferrer">github↗</a><br>
-        <a href="https://www.linkedin.com/in/ziangxue/" target="_blank" rel="noopener noreferrer">linkedin↗</a><br>
+        <a href="https://github.com/ZiangXue" target="_blank" rel="noopener noreferrer">github&#x2197;&#xFE0E;</a><br>
+        <a href="https://www.linkedin.com/in/ziangxue/" target="_blank" rel="noopener noreferrer">linkedin&#x2197;&#xFE0E;</a><br>
       </div>
 
       <div class="gap"></div>
 
-      <div>pomona college '23, b.a.</div>
-      <div>computer science & mathematics</div>
-      <div>-</div>
-      <div>ex goldman sachs software engineer</div>
-      <div>-</div>
-      <div>ucla '28, M.S</div>
-      <div>computer science</div>
+      <div class="details">
+        <div>pomona college '23, b.a.</div>
+        <div>computer science & mathematics</div>
+        <div>-</div>
+        <div>ex goldman sachs software engineer</div>
+        <div>-</div>
+        <div>ucla '28, m.s. computer science</div>
+      </div>
     </section>
-
-
-    <span id="measure">ANGXU</span>
-    <span id="measureE">E</span>
 
   </main>
 
-  <script>
-    (() => {
-      const root = document.documentElement;
-      const measure = document.getElementById("measure");
-      const measureE = document.getElementById("measureE");
-
-      /*
-        Find the ONE shared font-size that makes ANGXU exactly as wide
-        as the viewport.
-
-        Binary search is used because the relationship between font-size
-        and rendered text width is monotonic.
-      */
-      function fitANGXU() {
-        const target = document.documentElement.clientWidth;
-
-        let low = 1;
-        let high = Math.max(target * 2, 1000);
-
-        for (let i = 0; i < 35; i++) {
-          const mid = (low + high) / 2;
-
-          measure.style.fontSize = `${mid}px`;
-
-          if (measure.getBoundingClientRect().width < target) {
-            low = mid;
-          } else {
-            high = mid;
-          }
-        }
-        // Mildly increase the font-size to induce a slight over-fit.
-        root.style.setProperty("--hero-size", `${low+1}px`);
-      }
-
-      /*
-        Measure the actual painted left edge of E.
-
-        Canvas text metrics give us the glyph's actual bounding box
-        rather than merely the CSS line box. We then move the visible
-        E left by exactly that amount, making its visible glyph edge
-        coincide with x=0.
-      */
-      function alignE() {
-        const size = parseFloat(
-          getComputedStyle(root).getPropertyValue("--hero-size")
-        );
-
-        measureE.style.fontSize = `${size}px`;
-
-        const rect = measureE.getBoundingClientRect();
-
-        /*
-          The hidden element begins at x=0 conceptually.
-          Its actual text bounding box is represented by the left
-          side bearing. We determine the correction with canvas when
-          available, and fall back to the DOM measurement.
-        */
-        let offset = 0;
-
-        if (document.fonts && document.fonts.check) {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
-
-          if (ctx) {
-            ctx.font = `700 ${size}px Helvetica, Arial, sans-serif`;
-
-            const metrics = ctx.measureText("E");
-
-            if (
-              typeof metrics.actualBoundingBoxLeft === "number"
-            ) {
-              offset = -metrics.actualBoundingBoxLeft;
-            } else {
-              offset = -rect.left;
-            }
-          } else {
-            offset = -rect.left;
-          }
-        } else {
-          offset = -rect.left;
-        }
-
-        root.style.setProperty("--e-offset", `-${offset}px`);
-      }
-
-      function update() {
-        fitANGXU();
-
-        /*
-          Wait one frame so the browser applies the newly calculated
-          font-size before measuring E.
-        */
-        requestAnimationFrame(alignE);
-      }
-
-      let resizeFrame = 0;
-
-      function scheduleUpdate() {
-        cancelAnimationFrame(resizeFrame);
-        resizeFrame = requestAnimationFrame(update);
-      }
-
-      window.addEventListener("resize", scheduleUpdate);
-      window.addEventListener("orientationchange", scheduleUpdate);
-
-      /*
-        Wait for the font system before the first measurement.
-      */
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(update);
-      } else {
-        window.addEventListener("load", update);
-      }
-
-      update();
-    })();
-  </script>
 
 </body>
 </html>
